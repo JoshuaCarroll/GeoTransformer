@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GeoTransformer": {
+      "commandName": "Project",
+      "commandLineArgs": "https://www.waze.com/partnerhub-api/partners/13247848694/waze-feeds/cd5f2819-3ca7-4595-a610-44ec0ae3439c?format=1"
+    }
+  }
+}
