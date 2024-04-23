@@ -11,6 +11,7 @@ namespace GeoTransformer
 {
     public class mPingJson
     {
+        
         public static string ToKml(string jsonData)
         {
             Kml kml = new Kml();
@@ -23,14 +24,17 @@ namespace GeoTransformer
             {
                 if (result.description != "NULL" && result.geom.coordinates[0] < 1)
                 {
-                    doc.AddFeature(new Placemark
+                    Placemark p = new Placemark
                     {
                         Name = result.description,
+                        GXBalloonVisibility = false,
                         Geometry = new Point
                         {
                             Coordinate = new SharpKml.Base.Vector(result.geom.coordinates[1], result.geom.coordinates[0]),
                         }
-                    });
+                    };
+                    p.Description.Text = $"Observed at {result.obtime}";
+                    doc.AddFeature(p);
                 }
             }
 

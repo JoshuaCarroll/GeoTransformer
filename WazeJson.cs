@@ -4,6 +4,7 @@ using SharpKml.Dom;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,24 +20,73 @@ namespace GeoTransformer
 
             WazeJson wazeJson = JsonConvert.DeserializeObject<WazeJson>(jsonData);
 
-            var alerts = new Folder { Id = "data-layers", Name = "Alerts" };
+            var alerts = new Folder { Id = "data-layers", Name = "Alerts", Open = false };
             doc.AddFeature(alerts);
+            var irregularities = new Folder { Id = "data-layers", Name = "Irregularities", Open = false };
+            doc.AddFeature(irregularities);
+            var jams = new Folder { Id = "data-layers", Name = "Jams", Open = false };
+            doc.AddFeature(jams);
+            
             foreach (Alert alert in wazeJson.alerts)
             {
-                alerts.AddFeature(new Placemark
+                alerts.AddFeature(CreatePlacemark(alert));
+            }
+            foreach (Irregularity irregularity in wazeJson.irregularities)
+            {
+                irregularities.AddFeature(CreateLine(irregularity.line));
+
+                foreach (Alert alert in irregularity.alerts)
                 {
-                    Name = alert.subtype.Replace('_', ' '),
-                    Geometry = new Point
-                    {
-                        Coordinate = new SharpKml.Base.Vector(alert.location.y, alert.location.x),
-                    }
-                });
+                    irregularities.AddFeature(CreatePlacemark(alert));
+                }
             }
 
             Serializer serializer = new Serializer();
             serializer.Serialize(kml);
             return serializer.Xml;
         }
+
+        private static Placemark CreateLine(List<Line> lines) {
+            Placemark p = new Placemark();
+
+            var track = new SharpKml.Dom.GX.Track();
+            foreach (Line line in lines)
+            {
+                var vector = new Vector(line.y, line.x);
+                track.AddCoordinate(vector);
+            }
+
+            p.Geometry = track;
+            return p;
+        }
+        private static Placemark CreatePlacemark(Alert alert) {
+            alert.subtype = alert.subtype.Replace('_', ' ');
+            return CreatePlacemark (
+                @$"<p><strong>{alert.type}</strong><br>{alert.subtype}</p>
+                <p>
+                    {alert.city}<br>
+                    Confidence: {alert.confidence}/10<br>
+                    Reliability: {alert.reliability}/10<br>
+
+                </p>", 
+                alert.location.y, 
+                alert.location.x
+            );
+        }
+        private static Placemark CreatePlacemark(string description, double latitude, double longitude) {
+            Placemark p = new Placemark();
+
+            p.Description = new Description();
+            p.Description.Text = description;
+            p.GXBalloonVisibility = false;
+            p.Geometry = new Point
+            {
+                Coordinate = new SharpKml.Base.Vector(latitude, longitude),
+            };
+
+            return p;
+        }
+
         public List<Alert> alerts { get; set; }
         public long endTimeMillis { get; set; }
         public List<Irregularity> irregularities { get; set; }
