@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ExtensionMethods;
+using Newtonsoft.Json;
 using SharpKml.Base;
 using SharpKml.Dom;
 using System;
@@ -12,32 +13,35 @@ namespace GeoTransformer
 {
     public class WazeJson
     {
-        public static string ToKml(string jsonData)
+        public static WazeJson FromJson(string jsonData) {
+            WazeJson wazeJson = JsonConvert.DeserializeObject<WazeJson>(jsonData);
+            return wazeJson;
+        }
+
+        public string ToKml()
         {
             Kml kml = new Kml();
             var doc = new SharpKml.Dom.Document { Name = "Map items", Open = false };
             kml.Feature = doc;
 
-            WazeJson wazeJson = JsonConvert.DeserializeObject<WazeJson>(jsonData);
-
-            var alerts = new Folder { Id = "data-layers", Name = "Alerts", Open = false };
-            doc.AddFeature(alerts);
-            var irregularities = new Folder { Id = "data-layers", Name = "Irregularities", Open = false };
-            doc.AddFeature(irregularities);
-            var jams = new Folder { Id = "data-layers", Name = "Jams", Open = false };
-            doc.AddFeature(jams);
+            var fdrAlerts = new Folder { Id = "data-layers", Name = "Alerts", Open = false };
+            doc.AddFeature(fdrAlerts);
+            var fdrIrregularities = new Folder { Id = "data-layers", Name = "Irregularities", Open = false };
+            doc.AddFeature(fdrIrregularities);
+            var fdrJams = new Folder { Id = "data-layers", Name = "Jams", Open = false };
+            doc.AddFeature(fdrJams);
             
-            foreach (Alert alert in wazeJson.alerts)
+            foreach (Alert alert in alerts.EmptyIfNull())
             {
-                alerts.AddFeature(CreatePlacemark(alert));
+                fdrAlerts.AddFeature(CreatePlacemark(alert));
             }
-            foreach (Irregularity irregularity in wazeJson.irregularities)
+            foreach (Irregularity irregularity in irregularities.EmptyIfNull())
             {
-                irregularities.AddFeature(CreateLine(irregularity.line));
+                fdrIrregularities.AddFeature(CreateLine(irregularity.line));
 
-                foreach (Alert alert in irregularity.alerts)
+                foreach (Alert alert in irregularity.alerts.EmptyIfNull())
                 {
-                    irregularities.AddFeature(CreatePlacemark(alert));
+                    fdrIrregularities.AddFeature(CreatePlacemark(alert));
                 }
             }
 
@@ -60,20 +64,27 @@ namespace GeoTransformer
             return p;
         }
         private static Placemark CreatePlacemark(Alert alert) {
-            alert.subtype = alert.subtype.Replace('_', ' ');
             return CreatePlacemark (
-                @$"<p><strong>{alert.type}</strong><br>{alert.subtype}</p>
+                @$"<![CDATA[ <p><strong>{alert.type.Replace('_', ' ')}</strong><br>{alert.subtype.Replace('_', ' ')}</p>
                 <p>
-                    {alert.city}<br>
+                    {alert.street} {alert.city}<br>
+                    Bearing: {alert.magvar}&deg;
+                    <p>{alert.reportDescription}</p>
                     Confidence: {alert.confidence}/10<br>
                     Reliability: {alert.reliability}/10<br>
+                    Report rating: {alert.reportRating}/6<br>                    
 
-                </p>", 
+                </p> ]]>", 
                 alert.location.y, 
-                alert.location.x
+                alert.location.x,
+                $"{alert.type.Replace(" / ", "_")}_{alert.subtype}"
             );
         }
-        private static Placemark CreatePlacemark(string description, double latitude, double longitude) {
+        private static Placemark CreatePlacemark(string description, double latitude, double longitude, string styleName = "") {
+            if (styleName == "") {
+                styleName = description;
+            }
+
             Placemark p = new Placemark();
 
             p.Description = new Description();
@@ -83,8 +94,52 @@ namespace GeoTransformer
             {
                 Coordinate = new SharpKml.Base.Vector(latitude, longitude),
             };
+            p.StyleUrl = KmlStyles.GetStyleId(KmlStyles.StyleSource.WazeJson, description);
 
             return p;
+        }
+
+        public enum AlertTypes {
+            ACCIDENT_ACCIDENT_MINOR,
+            ACCIDENT_ACCIDENT_MAJOR,
+            ACCIDENT_NO_SUBTYPE,
+            JAM_JAM_MODERATE_TRAFFIC,
+            JAM_JAM_HEAVY_TRAFFIC,
+            JAM_JAM_STAND_STILL_TRAFFIC,
+            JAM_JAM_LIGHT_TRAFFIC,
+            JAM_NO_SUBTYPE,
+            WEATHERHAZARD_HAZARD_HAZARD_ON_ROAD,
+            WEATHERHAZARD_HAZARD_HAZARD_ON_SHOULDER,
+            WEATHERHAZARD_HAZARD_HAZARD_WEATHER,
+            WEATHERHAZARD_HAZARD_HAZARD_ON_ROAD_OBJECT,
+            WEATHERHAZARD_HAZARD_HAZARD_ON_ROAD_POT_HOLE,
+            WEATHERHAZARD_HAZARD_HAZARD_ON_ROAD_ROAD_KILL,
+            WEATHERHAZARD_HAZARD_HAZARD_ON_SHOULDER_CAR_STOPPED,
+            WEATHERHAZARD_HAZARD_HAZARD_ON_SHOULDER_ANIMALS,
+            WEATHERHAZARD_HAZARD_HAZARD_ON_SHOULDER_MISSING_SIGN,
+            WEATHERHAZARD_HAZARD_HAZARD_WEATHER_FOG,
+            WEATHERHAZARD_HAZARD_HAZARD_WEATHER_HAIL,
+            WEATHERHAZARD_HAZARD_HAZARD_WEATHER_HEAVY_RAIN,
+            WEATHERHAZARD_HAZARD_HAZARD_WEATHER_HEAVY_SNOW,
+            WEATHERHAZARD_HAZARD_HAZARD_WEATHER_FLOOD,
+            WEATHERHAZARD_HAZARD_HAZARD_WEATHER_MONSOON,
+            WEATHERHAZARD_HAZARD_HAZARD_WEATHER_TORNADO,
+            WEATHERHAZARD_HAZARD_HAZARD_WEATHER_HEAT_WAVE,
+            WEATHERHAZARD_HAZARD_HAZARD_WEATHER_HURRICANE,
+            WEATHERHAZARD_HAZARD_HAZARD_WEATHER_FREEZING_RAIN,
+            WEATHERHAZARD_HAZARD_HAZARD_ON_ROAD_LANE_CLOSED,
+            WEATHERHAZARD_HAZARD_HAZARD_ON_ROAD_OIL,
+            WEATHERHAZARD_HAZARD_HAZARD_ON_ROAD_ICE,
+            WEATHERHAZARD_HAZARD_HAZARD_ON_ROAD_CONSTRUCTION,
+            WEATHERHAZARD_HAZARD_HAZARD_ON_ROAD_CAR_STOPPED,
+            WEATHERHAZARD_HAZARD_HAZARD_ON_ROAD_TRAFFIC_LIGHT_FAULT,
+            WEATHERHAZARD_HAZARD_NO_SUBTYPE,
+            MISC_NO_SUBTYPE,
+            CONSTRUCTION_NO_SUBTYPE,
+            ROAD_CLOSED_ROAD_CLOSED_HAZARD,
+            ROAD_CLOSED_ROAD_CLOSED_CONSTRUCTION,
+            ROAD_CLOSED_ROAD_CLOSED_EVENT,
+            ROAD_CLOSED_NO_SUBTYPE
         }
 
         public List<Alert> alerts { get; set; }
