@@ -36,27 +36,27 @@ namespace GeoTransformer
             return serializer.Xml;
         }
         public string type { get; set; }
-        public List<Feature> features { get; set; }
+        public List<Feature>? features { get; set; }
     }
     public class Feature
     {
         public int id { get; set; }
-        public string type { get; set; }
-        public Geometry geometry { get; set; }
-        public Properties properties { get; set; }
+        public string? type { get; set; }
+        public Geometry? geometry { get; set; }
+        public Properties? properties { get; set; }
     }
 
     public class Geometry
     {
-        public string type { get; set; }
-        public List<double> coordinates { get; set; }
+        public string? type { get; set; }
+        public List<double>? coordinates { get; set; }
     }
 
     public class Properties
     {
         public DateTime obtime { get; set; }
-        public string category { get; set; }
-        public string description { get; set; }
+        public string? category { get; set; }
+        public string? description { get; set; }
         public int description_id { get; set; }
     }
 }

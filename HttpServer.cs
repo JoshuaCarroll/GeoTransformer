@@ -101,6 +101,14 @@ namespace GeoTransformer
                     }
                     requestMessage.Headers.Add("User-Agent", "Mozilla/5.0");
 
+                    if (uri.Host == "mping.ou.edu")
+                    {
+                        string qs = requestMessage.RequestUri.AbsoluteUri.Contains('?') ? "&" : "?";
+                        System.TimeSpan ageOfOldestReport = System.TimeSpan.FromDays(1);
+                        DateTime dt = DateTime.UtcNow.Subtract(ageOfOldestReport);
+                        requestMessage.RequestUri = new Uri(requestMessage.RequestUri.AbsoluteUri + qs + "obtime_gte=" + dt.ToString("yyyy-MM-dd HH:mm:ss"));  // 2012-02-20 03:00:00
+                    }
+
                     ConsoleWriteLine("Sending request:" + Environment.NewLine + requestMessage);
                     HttpResponseMessage httpResponse = client.Send(requestMessage);
                     
@@ -115,11 +123,10 @@ namespace GeoTransformer
                     switch (uri.Host)
                     {
                         case "www.waze.com":
-                            output = WazeJson.ToKml(responseText);
+                            //output = WazeJson.ToKml(responseText);
                             break;
                         case "mping.ou.edu":
-                            output = mPingJson.ToKml(responseText);
-                            //output = GeoJson.ToKml(responseText);
+                            output = mPingJson.FromJson(responseText).ToKml();
                             break;
                         default:
                             break;
