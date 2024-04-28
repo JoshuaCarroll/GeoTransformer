@@ -123,7 +123,7 @@ namespace GeoTransformer
                     switch (uri.Host)
                     {
                         case "www.waze.com":
-                            //output = WazeJson.ToKml(responseText);
+                            output = WazeJson.FromJson(responseText).ToKml();
                             break;
                         case "mping.ou.edu":
                             output = mPingJson.FromJson(responseText).ToKml();
