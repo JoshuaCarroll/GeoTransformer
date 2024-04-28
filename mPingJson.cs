@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ExtensionMethods;
+using Newtonsoft.Json;
 using SharpKml.Base;
 using SharpKml.Dom;
 using System;
@@ -24,7 +25,7 @@ namespace GeoTransformer
             kml.Feature = doc;
             KmlStyles.AddStyles(doc);
 
-            foreach (Result result in results)
+            foreach (Result result in results.EmptyIfNull())
             {
                 if (result.description != "NULL" && result.geom.coordinates[0] < 1)
                 {
