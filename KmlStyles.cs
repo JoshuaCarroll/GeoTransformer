@@ -12,14 +12,23 @@ namespace GeoTransformer
     {
         public static void AddStyles(SharpKml.Dom.Document doc)
         {
-            // mPing icons
-            //doc.AddStyle(CreateStyle("default", "https://maps.google.com/mapfiles/kml/paddle/blu-blank.png"));
-            doc.AddStyle(CreateStyle("flood", "https://maps.google.com/mapfiles/kml/shapes/water.png"));
-            doc.AddStyle(CreateStyle("hail", "https://maps.google.com/mapfiles/kml/shapes/shaded_dot.png"));
-            doc.AddStyle(CreateStyle("rain", "https://maps.google.com/mapfiles/kml/shapes/rainy.png"));
+            string iconHost = "https://joshuacarroll.github.io/GeoTransformer/icons";
 
-            // Waze icons
-            doc.AddStyle(CreateStyle("default", "http://127.0.0.1/caraccident.png"));
+            doc.AddStyle(CreateStyle("default", $"{iconHost}/caraccident.png"));
+            doc.AddStyle(CreateStyle("damage-green", $"{iconHost}/damage-green.png"));
+            doc.AddStyle(CreateStyle("damage-amber", $"{iconHost}/damage-amber.png"));
+            doc.AddStyle(CreateStyle("damage-red", $"{iconHost}/damage-red.png"));
+            doc.AddStyle(CreateStyle("default", $"{iconHost}/default.png"));
+            doc.AddStyle(CreateStyle("flood", $"{iconHost}/flood.png"));
+            doc.AddStyle(CreateStyle("fog", $"{iconHost}/fog.png"));
+            doc.AddStyle(CreateStyle("freezingrain", $"{iconHost}/freezingrain.png"));
+            doc.AddStyle(CreateStyle("hail-green", $"{iconHost}/hail-green.png"));
+            doc.AddStyle(CreateStyle("hail-amber", $"{iconHost}/hail-amber.png"));
+            doc.AddStyle(CreateStyle("hail-red", $"{iconHost}/hail-red.png"));
+            doc.AddStyle(CreateStyle("rain", $"{iconHost}/rain.png"));
+            doc.AddStyle(CreateStyle("snow", $"{iconHost}/snow.png"));
+            doc.AddStyle(CreateStyle("tornado", $"{iconHost}/tornado.png"));
+            doc.AddStyle(CreateStyle("waterspout", $"{iconHost}/waterspout.png"));
         }
 
         public static Uri GetStyleId(StyleSource styleSource, string keyValue)
@@ -35,11 +44,12 @@ namespace GeoTransformer
                         case "2": // None (NULL)
                             output = "default";
                             break;
-
                         case "3": // Rain/Snow (Rain)
                         case "4": // Rain/Snow (Freezing Rain)
                         case "5": // Rain/Snow (Drizzle)
                         case "6": // Rain/Snow (Freezing Drizzle)
+                            output = "rain";
+                            break;
                         case "7": // Rain/Snow (Ice Pellets/Sleet)
                         case "8": // Rain/Snow (Snow and/or Graupel)
                         case "9": // Rain/Snow (Mixed Rain and Snow)
@@ -47,16 +57,19 @@ namespace GeoTransformer
                         case "48": // Rain/Snow (Mixed Freezing Rain and Ice Pellets)
                         case "11": // Rain/Snow (Mixed Rain and Ice Pellets)
                         case "12": // Rain/Snow (Graupel)
-                            output = "rain";
+                            output = "snow";
                             break;
-
                         case "13": // Hail (Pea (0.25 in.))
                         case "14": // Hail (Half-inch (0.50 in.))
                         case "15": // Hail (Dime (0.75 in.))
+                            output = "hail-green";
+                            break;
                         case "16": // Hail (Quarter (1.00 in.))
                         case "17": // Hail (Half Dollar (1.25 in.))
                         case "18": // Hail (Ping Pong Ball (1.50 in.))
                         case "19": // Hail (Golf Ball (1.75 in.))
+                            output = "hail-amber";
+                            break;
                         case "20": // Hail (Hen Egg (2.00 in.))
                         case "21": // Hail (Hen Egg+ (2.25 in.))
                         case "22": // Hail (Tennis Ball (2.50 in.))
@@ -70,22 +83,25 @@ namespace GeoTransformer
                         case "30": // Hail (Softball (4.50 in.))
                         case "31": // Hail (Softball+ (4.75 in.))
                         case "32": // Hail (Softball++ (>=5.00 in.))
-                            output = "hail";
+                            output = "hail-red";
                             break;
-
                         case "33": // Wind Damage (Lawn furniture or trash cans displaced; Small twigs broken)
                         case "34": // Wind Damage (1-inch tree limbs broken; Shingles blown off)
                         case "35": // Wind Damage (3-inch tree limbs broken; Power poles broken)
+                            output = "damage-green";
+                            break;
                         case "36": // Wind Damage (Trees uprooted or snapped; Roof blown off)
+                            output = "damage-amber";
+                            break;
                         case "37": // Wind Damage (Homes/Buildings completely destroyed)
-                            output = "default";
+                            output = "damage-red";
                             break;
-
                         case "38": // Tornado (Tornado (on ground))
-                        case "39": // Tornado (Water Spout)
-                            output = "default";
+                            output = "tornado";
                             break;
-
+                        case "39": // Tornado (Water Spout)
+                            output = "waterspout";
+                            break;
                         case "40": // Flood (River/Creek overflowing; Cropland/Yard/Basement Flooding)
                         case "41": // Flood (Street/road flooding; Street/road closed; Vehicles stranded)
                         case "42": // Flood (Homes or buildings filled with water)
@@ -93,7 +109,6 @@ namespace GeoTransformer
                         case "44": // Mudslide
                             output = "flood";
                             break;
-
                         case "45": // Reduced Visibility (Dense Fog)
                         case "46": // Reduced Visibility (Blowing Dust/Sand)
                         case "47": // Reduced Visibility (Blowing Snow)
@@ -101,7 +116,6 @@ namespace GeoTransformer
                         case "60": // Reduced Visibility (Smoke)
                             output = "fog";
                             break;
-
                         case "50": // Winter Weather Impacts (Downed tree limbs or power lines from snow or ice)
                         case "51": // Winter Weather Impacts (Frozen or burst water pipes)
                         case "52": // Winter Weather Impacts (Roof or structural collapse from snow or ice)
@@ -112,9 +126,8 @@ namespace GeoTransformer
                         case "57": // Winter Weather Impacts (Icy sidewalks, driveways, and/or parking lots)
                         case "58": // Winter Weather Impacts (Snow accumulating only on grass)
                         case "59": // Winter Weather Impacts (Snow accumulating on roads and sidewalks)
-                            output = "default";
+                            output = "snow";
                             break;
-
                         case "61": // Groundhog (Shadow)
                         case "62": // Groundhog (No Shadow)
                         default:
