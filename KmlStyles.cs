@@ -14,7 +14,9 @@ namespace GeoTransformer
         {
             string iconHost = "https://joshuacarroll.github.io/GeoTransformer/icons";
 
-            doc.AddStyle(CreateStyle("default", $"{iconHost}/caraccident.png"));
+            doc.AddStyle(CreateStyle("animal", $"{iconHost}/animal.png"));
+            doc.AddStyle(CreateStyle("car-brown", $"{iconHost}/car-brown.png"));
+            doc.AddStyle(CreateStyle("caraccident", $"{iconHost}/caraccident.png"));
             doc.AddStyle(CreateStyle("damage-green", $"{iconHost}/damage-green.png"));
             doc.AddStyle(CreateStyle("damage-amber", $"{iconHost}/damage-amber.png"));
             doc.AddStyle(CreateStyle("damage-red", $"{iconHost}/damage-red.png"));
@@ -26,6 +28,7 @@ namespace GeoTransformer
             doc.AddStyle(CreateStyle("hail-amber", $"{iconHost}/hail-amber.png"));
             doc.AddStyle(CreateStyle("hail-red", $"{iconHost}/hail-red.png"));
             doc.AddStyle(CreateStyle("rain", $"{iconHost}/rain.png"));
+            doc.AddStyle(CreateStyle("roadbarricade", $"{iconHost}/roadbarricade.png"));
             doc.AddStyle(CreateStyle("snow", $"{iconHost}/snow.png"));
             doc.AddStyle(CreateStyle("tornado", $"{iconHost}/tornado.png"));
             doc.AddStyle(CreateStyle("waterspout", $"{iconHost}/waterspout.png"));
@@ -145,19 +148,11 @@ namespace GeoTransformer
                             output = "caraccident.png";
                             break;
                         case WazeJson.AlertTypes.JAM_JAM_MODERATE_TRAFFIC:
-                            output = "";
-                            break;
                         case WazeJson.AlertTypes.JAM_JAM_HEAVY_TRAFFIC:
-                            output = "";
-                            break;
                         case WazeJson.AlertTypes.JAM_JAM_STAND_STILL_TRAFFIC:
-                            output = "";
-                            break;
                         case WazeJson.AlertTypes.JAM_JAM_LIGHT_TRAFFIC:
-                            output = "";
-                            break;
                         case WazeJson.AlertTypes.JAM_NO_SUBTYPE:
-                            output = "";
+                            output = "default";
                             break;
                         case WazeJson.AlertTypes.WEATHERHAZARD_HAZARD_HAZARD_ON_ROAD:
                             output = "";
@@ -178,34 +173,34 @@ namespace GeoTransformer
                             output = "";
                             break;
                         case WazeJson.AlertTypes.WEATHERHAZARD_HAZARD_HAZARD_ON_SHOULDER_CAR_STOPPED:
-                            output = "";
+                            output = "car-brown";
                             break;
                         case WazeJson.AlertTypes.WEATHERHAZARD_HAZARD_HAZARD_ON_SHOULDER_ANIMALS:
-                            output = "";
+                            output = "animal";
                             break;
                         case WazeJson.AlertTypes.WEATHERHAZARD_HAZARD_HAZARD_ON_SHOULDER_MISSING_SIGN:
                             output = "";
                             break;
                         case WazeJson.AlertTypes.WEATHERHAZARD_HAZARD_HAZARD_WEATHER_FOG:
-                            output = "";
+                            output = "fog";
                             break;
                         case WazeJson.AlertTypes.WEATHERHAZARD_HAZARD_HAZARD_WEATHER_HAIL:
-                            output = "";
+                            output = "hail-sm";
                             break;
                         case WazeJson.AlertTypes.WEATHERHAZARD_HAZARD_HAZARD_WEATHER_HEAVY_RAIN:
-                            output = "";
+                            output = "rain";
                             break;
                         case WazeJson.AlertTypes.WEATHERHAZARD_HAZARD_HAZARD_WEATHER_HEAVY_SNOW:
-                            output = "";
+                            output = "snow";
                             break;
                         case WazeJson.AlertTypes.WEATHERHAZARD_HAZARD_HAZARD_WEATHER_FLOOD:
-                            output = "";
+                            output = "flood";
                             break;
                         case WazeJson.AlertTypes.WEATHERHAZARD_HAZARD_HAZARD_WEATHER_MONSOON:
-                            output = "";
+                            output = "rain";
                             break;
                         case WazeJson.AlertTypes.WEATHERHAZARD_HAZARD_HAZARD_WEATHER_TORNADO:
-                            output = "";
+                            output = "tornado";
                             break;
                         case WazeJson.AlertTypes.WEATHERHAZARD_HAZARD_HAZARD_WEATHER_HEAT_WAVE:
                             output = "";
@@ -214,10 +209,10 @@ namespace GeoTransformer
                             output = "";
                             break;
                         case WazeJson.AlertTypes.WEATHERHAZARD_HAZARD_HAZARD_WEATHER_FREEZING_RAIN:
-                            output = "";
+                            output = "snow";
                             break;
                         case WazeJson.AlertTypes.WEATHERHAZARD_HAZARD_HAZARD_ON_ROAD_LANE_CLOSED:
-                            output = "";
+                            output = "roadbarricade";
                             break;
                         case WazeJson.AlertTypes.WEATHERHAZARD_HAZARD_HAZARD_ON_ROAD_OIL:
                             output = "";
@@ -244,16 +239,10 @@ namespace GeoTransformer
                             output = "";
                             break;
                         case WazeJson.AlertTypes.ROAD_CLOSED_ROAD_CLOSED_HAZARD:
-                            output = "";
-                            break;
                         case WazeJson.AlertTypes.ROAD_CLOSED_ROAD_CLOSED_CONSTRUCTION:
-                            output = "";
-                            break;
                         case WazeJson.AlertTypes.ROAD_CLOSED_ROAD_CLOSED_EVENT:
-                            output = "";
-                            break;
                         case WazeJson.AlertTypes.ROAD_CLOSED_NO_SUBTYPE:
-                            output = "";
+                            output = "roadbarricade";
                             break;
                         default:
                             output = "default";
@@ -264,6 +253,8 @@ namespace GeoTransformer
                 default:
                     break;
             }
+
+            output = output.Trim() != string.Empty ? output : "default";
 
             return new Uri($"#{output}", UriKind.Relative);
         }
