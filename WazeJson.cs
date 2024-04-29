@@ -23,18 +23,17 @@ namespace GeoTransformer
             Kml kml = new Kml();
             var doc = new SharpKml.Dom.Document { Name = "Map items", Open = false };
             kml.Feature = doc;
+            KmlStyles.AddStyles(doc);
 
             var fdrAlerts = new Folder { Id = "data-layers", Name = "Alerts", Open = false };
             doc.AddFeature(fdrAlerts);
-            var fdrIrregularities = new Folder { Id = "data-layers", Name = "Irregularities", Open = false };
-            doc.AddFeature(fdrIrregularities);
-            var fdrJams = new Folder { Id = "data-layers", Name = "Jams", Open = false };
-            doc.AddFeature(fdrJams);
-            
             foreach (Alert alert in alerts.EmptyIfNull())
             {
                 fdrAlerts.AddFeature(CreatePlacemark(alert));
             }
+
+            var fdrIrregularities = new Folder { Id = "data-layers", Name = "Irregularities", Open = false };
+            doc.AddFeature(fdrIrregularities);
             foreach (Irregularity irregularity in irregularities.EmptyIfNull())
             {
                 fdrIrregularities.AddFeature(CreateLine(irregularity.line));
@@ -44,6 +43,10 @@ namespace GeoTransformer
                     fdrIrregularities.AddFeature(CreatePlacemark(alert));
                 }
             }
+
+            var fdrJams = new Folder { Id = "data-layers", Name = "Jams", Open = false };
+            doc.AddFeature(fdrJams);
+            // TODO: Implement jams (blackberry or strawberry preferably)
 
             Serializer serializer = new Serializer();
             serializer.Serialize(kml);
@@ -64,6 +67,8 @@ namespace GeoTransformer
             return p;
         }
         private static Placemark CreatePlacemark(Alert alert) {
+            string strAlertType = $"{alert.type.Replace(" / ", "_")}_{alert.subtype}";
+
             return CreatePlacemark (
                 @$"<![CDATA[ <p><strong>{alert.type.Replace('_', ' ')}</strong><br>{alert.subtype.Replace('_', ' ')}</p>
                 <p>
@@ -77,14 +82,10 @@ namespace GeoTransformer
                 </p> ]]>", 
                 alert.location.y, 
                 alert.location.x,
-                $"{alert.type.Replace(" / ", "_")}_{alert.subtype}"
+                strAlertType
             );
         }
-        private static Placemark CreatePlacemark(string description, double latitude, double longitude, string styleName = "") {
-            if (styleName == "") {
-                styleName = description;
-            }
-
+        private static Placemark CreatePlacemark(string description, double latitude, double longitude, string styleId = "default") {
             Placemark p = new Placemark();
 
             p.Description = new Description();
@@ -94,12 +95,13 @@ namespace GeoTransformer
             {
                 Coordinate = new SharpKml.Base.Vector(latitude, longitude),
             };
-            p.StyleUrl = KmlStyles.GetStyleId(KmlStyles.StyleSource.WazeJson, description);
+            p.StyleUrl = KmlStyles.GetStyleId(KmlStyles.StyleSource.WazeJson, styleId);
 
             return p;
         }
 
         public enum AlertTypes {
+            DEFAULT,
             ACCIDENT_ACCIDENT_MINOR,
             ACCIDENT_ACCIDENT_MAJOR,
             ACCIDENT_NO_SUBTYPE,
@@ -108,15 +110,15 @@ namespace GeoTransformer
             JAM_JAM_STAND_STILL_TRAFFIC,
             JAM_JAM_LIGHT_TRAFFIC,
             JAM_NO_SUBTYPE,
-            WEATHERHAZARD_HAZARD_HAZARD_ON_ROAD,
-            WEATHERHAZARD_HAZARD_HAZARD_ON_SHOULDER,
+            HAZARD_HAZARD_ON_ROAD,
+            HAZARD_HAZARD_ON_SHOULDER,
             WEATHERHAZARD_HAZARD_HAZARD_WEATHER,
-            WEATHERHAZARD_HAZARD_HAZARD_ON_ROAD_OBJECT,
-            WEATHERHAZARD_HAZARD_HAZARD_ON_ROAD_POT_HOLE,
-            WEATHERHAZARD_HAZARD_HAZARD_ON_ROAD_ROAD_KILL,
-            WEATHERHAZARD_HAZARD_HAZARD_ON_SHOULDER_CAR_STOPPED,
+            HAZARD_HAZARD_ON_ROAD_OBJECT,
+            HAZARD_HAZARD_ON_ROAD_POT_HOLE,
+            HAZARD_HAZARD_ON_ROAD_ROAD_KILL,
+            HAZARD_HAZARD_ON_SHOULDER_CAR_STOPPED,
             WEATHERHAZARD_HAZARD_HAZARD_ON_SHOULDER_ANIMALS,
-            WEATHERHAZARD_HAZARD_HAZARD_ON_SHOULDER_MISSING_SIGN,
+            HAZARD_HAZARD_ON_SHOULDER_MISSING_SIGN,
             WEATHERHAZARD_HAZARD_HAZARD_WEATHER_FOG,
             WEATHERHAZARD_HAZARD_HAZARD_WEATHER_HAIL,
             WEATHERHAZARD_HAZARD_HAZARD_WEATHER_HEAVY_RAIN,
@@ -127,13 +129,13 @@ namespace GeoTransformer
             WEATHERHAZARD_HAZARD_HAZARD_WEATHER_HEAT_WAVE,
             WEATHERHAZARD_HAZARD_HAZARD_WEATHER_HURRICANE,
             WEATHERHAZARD_HAZARD_HAZARD_WEATHER_FREEZING_RAIN,
-            WEATHERHAZARD_HAZARD_HAZARD_ON_ROAD_LANE_CLOSED,
-            WEATHERHAZARD_HAZARD_HAZARD_ON_ROAD_OIL,
-            WEATHERHAZARD_HAZARD_HAZARD_ON_ROAD_ICE,
-            WEATHERHAZARD_HAZARD_HAZARD_ON_ROAD_CONSTRUCTION,
-            WEATHERHAZARD_HAZARD_HAZARD_ON_ROAD_CAR_STOPPED,
-            WEATHERHAZARD_HAZARD_HAZARD_ON_ROAD_TRAFFIC_LIGHT_FAULT,
-            WEATHERHAZARD_HAZARD_NO_SUBTYPE,
+            HAZARD_HAZARD_ON_ROAD_LANE_CLOSED,
+            HAZARD_HAZARD_ON_ROAD_OIL,
+            HAZARD_HAZARD_ON_ROAD_ICE,
+            HAZARD_HAZARD_ON_ROAD_CONSTRUCTION,
+            HAZARD_HAZARD_ON_ROAD_CAR_STOPPED,
+            HAZARD_HAZARD_ON_ROAD_TRAFFIC_LIGHT_FAULT,
+            HAZARD_NO_SUBTYPE,
             MISC_NO_SUBTYPE,
             CONSTRUCTION_NO_SUBTYPE,
             ROAD_CLOSED_ROAD_CLOSED_HAZARD,
