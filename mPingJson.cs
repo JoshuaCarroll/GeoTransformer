@@ -42,8 +42,6 @@ namespace GeoTransformer
                     p.Description.Text = $"<![CDATA[ <p>Category: {result.category}<br>Observed at {result.obtime}</p>Description ID: {result.description_id} ]]>";
                     p.StyleUrl = KmlStyles.GetStyleId(KmlStyles.StyleSource.mPingJson, result.description_id.ToString());
                     doc.AddFeature(p);
-
-                    Debug.WriteLine(result.description_id + " = " + result.description);
                 }
             }
 

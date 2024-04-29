@@ -145,7 +145,6 @@ namespace GeoTransformer
         {
             var contentLength = Encoding.UTF8.GetByteCount(message);
 
-            ////
             var response = $@"HTTP/1.1 200 OK
 Content-Type: {contentType}; charset=UTF-8
 Content-Length: {contentLength}
